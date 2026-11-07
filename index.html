@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full w-full overflow-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinematic Diwali Experience</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Great+Vibes&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #05030f;
+            color: #fff;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .font-cinzel {
+            font-family: 'Cinzel', serif;
+        }
+
+        .font-cursive {
+            font-family: 'Great Vibes', cursive;
+        }
+
+        /* Glassmorphism Styling */
+        .glass-panel {
+            background: rgba(15, 10, 30, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .text-shimmer {
+            background: linear-gradient(90deg, #fef08a, #f59e0b, #fbbf24, #ffffff, #fef08a);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+
+        /* Equalizer Animation */
+        .eq-bar {
+            animation: eqBounce 1.2s ease-in-out infinite alternate;
+        }
+        .eq-bar:nth-child(2) { animation-delay: 0.2s; }
+        .eq-bar:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes eqBounce {
+            0% { height: 4px; }
+            100% { height: 16px; }
+        }
+
+        /* Tool Button Active State */
+        .tool-btn.active {
+            background: rgba(245, 158, 11, 0.35);
+            border-color: rgba(251, 191, 36, 0.9);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 2s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.3); }
+            100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); }
+        }
+    </style>
+</head>
+<body class="h-full w-full overflow-hidden bg-black text-amber-100 flex flex-col justify-between">
+
+    <!-- CANVAS CONTAINER -->
+    <div class="fixed inset-0 z-0">
+        <canvas id="diwaliCanvas" class="w-full h-full block bg-black"></canvas>
+    </div>
+
+    <!-- MAIN UI WRAPPER -->
+    <div class="relative z-10 flex flex-col justify-between h-full w-full pointer-events-none">
+
+        <!-- HEADER CONTROLS -->
+        <header class="p-4 md:p-6 flex justify-between items-center w-full pointer-events-auto">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full glass-panel flex items-center justify-center border border-amber-500/40 shadow-lg shadow-amber-500/10">
+                    <i class="fa-solid fa-om text-amber-400 text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-cinzel font-bold text-base md:text-lg tracking-wider text-amber-300 drop-shadow">DIWALI CELEBRATION</h1>
+                    <p class="text-[10px] md:text-xs text-amber-200/60 font-light tracking-widest uppercase">Enjoy Light Experience</p>
+                </div>
+            </div>
+
+            <!-- AUDIO & SHOW CONTROLS -->
+            <div class="flex items-center space-x-2 md:space-x-3">
+                <!-- Sound Toggle -->
+                <button id="audioBtn" class="glass-panel border border-amber-500/30 hover:border-amber-400 text-amber-300 px-3 py-2 rounded-xl text-xs md:text-sm font-medium flex items-center space-x-2 transition-all duration-300 hover:bg-amber-500/20">
+                    <i id="audioIcon" class="fa-solid fa-volume-xmark text-amber-400"></i>
+                    <div id="eqVisualizer" class="hidden flex items-end space-x-0.5 h-4">
+                        <span class="eq-bar w-1 bg-amber-400 rounded-full"></span>
+                        <span class="eq-bar w-1 bg-amber-300 rounded-full"></span>
+                        <span class="eq-bar w-1 bg-amber-500 rounded-full"></span>
+                    </div>
+                    <span id="audioText" class="hidden sm:inline">Sound: OFF</span>
+                </button>
+
+                <!-- Cinematic Auto Show -->
+                <button id="showModeBtn" class="glass-panel border border-amber-500/30 hover:border-amber-400 text-amber-300 px-3 py-2 rounded-xl text-xs md:text-sm font-medium flex items-center space-x-2 transition-all duration-300 hover:bg-amber-500/20">
+                    <i class="fa-solid fa-clapperboard text-amber-400"></i>
+                    <span id="showModeText">Cinematic: OFF</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- CENTER HERO / TITLE OVERLAY -->
+        <main class="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4 my-auto pointer-events-none">
+            <div class="max-w-3xl mx-auto">
+                <p id="subheading" class="text-amber-300/90 font-cursive text-2xl md:text-4xl mb-2 tracking-wide transition-all duration-700">Wishing You & Your Loved Ones</p>
+                <h2 id="mainHeading" class="font-cinzel text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-shimmer drop-shadow-2xl mb-4 transition-all duration-700">
+                    HAPPY DIWALI
+                </h2>
+                <p id="descText" class="text-xs sm:text-base text-amber-100/80 font-light max-w-xl mx-auto leading-relaxed mb-6 transition-all duration-700">
+                    Ignite hope, radiance, and prosperity in this immersive visual journey of light over darkness.
+                </p>
+
+                <!-- TOOLBAR / SELECTION -->
+                <div class="pointer-events-auto flex flex-wrap justify-center items-center gap-2 md:gap-3 mt-2">
+                    <button id="modeRocketBtn" class="tool-btn active glass-panel border text-amber-200 px-3.5 py-2 rounded-xl text-xs md:text-sm font-medium flex items-center space-x-2 transition-all duration-300 hover:bg-amber-500/20">
+                        <i class="fa-solid fa-rocket text-amber-400"></i>
+                        <span>Fireworks</span>
+                    </button>
+
+                    <button id="modeLanternBtn" class="tool-btn glass-panel border border-amber-500/30 text-amber-200 px-3.5 py-2 rounded-xl text-xs md:text-sm font-medium flex items-center space-x-2 transition-all duration-300 hover:bg-amber-500/20">
+                        <i class="fa-solid fa-paper-plane text-amber-400"></i>
+                        <span>Sky Lantern</span>
+                    </button>
+
+                    <button id="modeFlowerpotBtn" class="tool-btn glass-panel border border-amber-500/30 text-amber-200 px-3.5 py-2 rounded-xl text-xs md:text-sm font-medium flex items-center space-x-2 transition-all duration-300 hover:bg-amber-500/20">
+                        <i class="fa-solid fa-volcano text-amber-400"></i>
+                        <span>Anar Fountain</span>
+                    </button>
+
+                    <button id="modeDiyaBtn" class="tool-btn glass-panel border border-amber-500/30 text-amber-200 px-3.5 py-2 rounded-xl text-xs md:text-sm font-medium flex items-center space-x-2 transition-all duration-300 hover:bg-amber-500/20">
+                        <i class="fa-solid fa-fire text-amber-400"></i>
+                        <span>Light Diya</span>
+                    </button>
+
+                    <button id="modeRangoliBtn" class="tool-btn glass-panel border border-amber-500/30 text-amber-200 px-3.5 py-2 rounded-xl text-xs md:text-sm font-medium flex items-center space-x-2 transition-all duration-300 hover:bg-amber-500/20">
+                        <i class="fa-solid fa-bahai text-amber-400"></i>
+                        <span>Rangoli Pulse</span>
+                    </button>
+
+                    <button id="openWishModalBtn" class="glass-panel border border-amber-400/80 text-amber-300 px-4 py-2 rounded-xl text-xs md:text-sm font-semibold flex items-center space-x-2 bg-amber-500/20 hover:bg-amber-500/40 transition-all duration-300 pulse-glow">
+                        <i class="fa-solid fa-envelope-open-text text-amber-300"></i>
+                        <span>Special Greeting Card</span>
+                    </button>
+                </div>
+
+                <!-- Touch Hint -->
+                <p class="text-[11px] text-amber-200/50 mt-4 tracking-wider uppercase">
+                    <i class="fa-solid fa-hand-pointer mr-1"></i> Tap or Drag anywhere to trigger current effect (Works in Cinematic Mode too!)
+                </p>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="relative z-20 w-full py-3 px-4 text-center">
+            <div class="flex items-center justify-center space-x-6 mb-1">
+                <div class="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent w-1/4"></div>
+                <div class="text-amber-400/80 text-xs tracking-widest font-cinzel">🪔 LIGHT • LOVE • PROSPERITY 🪔</div>
+                <div class="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent w-1/4"></div>
+            </div>
+            <p class="text-[10px] text-amber-300/40 font-light">
+                Interactive Diwali Web Experience &copy; 2026
+            </p>
+        </footer>
+
+        <!-- DIRECT FESTIVE GREETING CARD MODAL -->
+        <div id="wishModal" class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/85 backdrop-blur-md hidden transition-opacity duration-300 opacity-0 pointer-events-auto">
+            <div class="glass-panel border-2 border-amber-500/50 rounded-2xl p-6 md:p-8 max-w-lg w-full relative shadow-2xl transform scale-95 transition-transform duration-300" id="wishModalCard">
+                <button id="closeWishModalBtn" class="absolute top-4 right-4 text-amber-400/70 hover:text-amber-300 text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+                <!-- DIRECT GREETING CARD RESULT -->
+                <div id="wishPreviewContainer">
+                    <div id="cardRender" class="p-6 md:p-8 rounded-xl border border-amber-500/60 bg-gradient-to-b from-purple-950/90 via-black/95 to-amber-950/90 text-center relative overflow-hidden shadow-2xl">
+                        <div class="absolute top-3 left-3 text-amber-400 text-sm">🪔</div>
+                        <div class="absolute top-3 right-3 text-amber-400 text-sm">🪔</div>
+                        <div class="absolute bottom-3 left-3 text-amber-400 text-sm">🪔</div>
+                        <div class="absolute bottom-3 right-3 text-amber-400 text-sm">🪔</div>
+
+                        <p class="font-cursive text-amber-300 text-2xl md:text-3xl mb-1">Warmest Wishes</p>
+                        <h4 class="font-cinzel text-amber-400 text-3xl md:text-4xl font-bold tracking-wider mb-3 text-shimmer">
+                            Happy Diwali 🎇
+                        </h4>
+                        <div class="w-24 h-0.5 bg-gradient-to-r from-transparent via-amber-500/80 to-transparent mx-auto mb-4"></div>
+                        
+                        <p class="text-sm md:text-base text-amber-100/95 leading-relaxed font-light my-3">
+                            May this festival of lights illuminate your path with health, peace, prosperity, and boundless happiness!
+                        </p>
+                        
+                        <div class="my-4 py-2 px-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs md:text-sm font-medium">
+                            <i class="fa-solid fa-shield-halved text-amber-400 mr-1.5"></i> Be safe with crackers & enjoy the grand light show!
+                        </div>
+
+                        <div class="w-16 h-0.5 bg-gradient-to-r from-transparent via-amber-500/60 to-transparent mx-auto my-3"></div>
+                        <p class="text-sm md:text-base font-semibold text-amber-300 tracking-widest font-cinzel uppercase">
+                            — By Praveen
+                        </p>
+                    </div>
+
+                    <div class="flex gap-3 mt-5">
+                        <button id="triggerCelebrationBtn" class="flex-1 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 text-black font-semibold py-2.5 rounded-lg text-xs md:text-sm shadow-lg shadow-amber-500/20 transition-all">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Launch Celebration
+                        </button>
+                        <button id="copyWishBtn" class="flex-1 border border-amber-500/60 hover:bg-amber-500/20 text-amber-300 font-semibold py-2.5 rounded-lg text-xs md:text-sm shadow-md transition-all">
+                            <i class="fa-solid fa-copy mr-1"></i> Copy Greeting
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT ENGINE -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // GLOBAL STATE & CONFIGURATION
+            const state = {
+                mode: 'rocket', // 'rocket', 'lantern', 'flowerpot', 'diya', 'rangoli'
+                soundEnabled: false,
+                autoShow: false,
+                mouse: { x: 0, y: 0, isDown: false },
+                cameraOffset: { x: 0, y: 0, targetX: 0, targetY: 0 },
+                lastAutoLaunch: 0
+            };
+
+            // CANVAS INITIALIZATION
+            const canvas = document.getElementById('diwaliCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            // AUDIO SYNTHESIS ENGINE (Web Audio API)
+            let audioCtx = null;
+            function initAudio() {
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        audioCtx = new AudioContext();
+                    }
+                }
+            }
+
+            function playSound(type) {
+                if (!state.soundEnabled || !audioCtx) return;
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const now = audioCtx.currentTime;
+                if (type === 'launch') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.3);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'pop') {
+                    const bufferSize = audioCtx.sampleRate * 0.15;
+                    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.2));
+                    }
+                    const noise = audioCtx.createBufferSource();
+                    noise.buffer = buffer;
+                    const filter = audioCtx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.value = 1000 + Math.random() * 800;
+                    const gain = audioCtx.createGain();
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    noise.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    noise.start(now);
+                } else if (type === 'fountain') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(400 + Math.random() * 300, now);
+                    gain.gain.setValueAtTime(0.03, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                }
+            }
+
+            // ENTITY ARRAYS & CLASSES
+            const fireworks = [];
+            const particles = [];
+            const lanterns = [];
+            const diyas = [];
+            const rangolis = [];
+
+            // FIREWORK & PARTICLE LOGIC
+            class Firework {
+                constructor(sx, sy, tx, ty) {
+                    this.x = sx;
+                    this.y = sy;
+                    this.sx = sx;
+                    this.sy = sy;
+                    this.tx = tx;
+                    this.ty = ty;
+                    this.distanceToTarget = Math.hypot(tx - sx, ty - sy);
+                    this.distanceTraveled = 0;
+                    this.coordinates = [];
+                    this.coordinateCount = 3;
+                    while (this.coordinateCount--) {
+                        this.coordinates.push([this.x, this.y]);
+                    }
+                    this.angle = Math.atan2(ty - sy, tx - sx);
+                    this.speed = 4;
+                    this.acceleration = 1.03;
+                    this.hue = Math.random() * 360;
+                    playSound('launch');
+                }
+
+                update(index) {
+                    this.coordinates.pop();
+                    this.coordinates.unshift([this.x, this.y]);
+                    this.speed *= this.acceleration;
+                    const vx = Math.cos(this.angle) * this.speed;
+                    const vy = Math.sin(this.angle) * this.speed;
+                    this.distanceTraveled = Math.hypot(this.x - this.sx, this.y - this.sy);
+
+                    if (this.distanceTraveled >= this.distanceToTarget) {
+                        createExplosion(this.tx, this.ty, this.hue);
+                        fireworks.splice(index, 1);
+                    } else {
+                        this.x += vx;
+                        this.y += vy;
+                    }
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+                    ctx.lineTo(this.x, this.y);
+                    ctx.strokeStyle = `hsl(${this.hue}, 100%, 60%)`;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            }
+
+            class Particle {
+                constructor(x, y, hue) {
+                    this.x = x;
+                    this.y = y;
+                    this.coordinates = [];
+                    this.coordinateCount = 4;
+                    while (this.coordinateCount--) {
+                        this.coordinates.push([this.x, this.y]);
+                    }
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.speed = Math.random() * 8 + 1;
+                    this.friction = 0.95;
+                    this.gravity = 0.6;
+                    this.hue = hue + (Math.random() * 40 - 20);
+                    this.brightness = Math.random() * 40 + 60;
+                    this.alpha = 1;
+                    this.decay = Math.random() * 0.015 + 0.01;
+                }
+
+                update(index) {
+                    this.coordinates.pop();
+                    this.coordinates.unshift([this.x, this.y]);
+                    this.speed *= this.friction;
+                    this.x += Math.cos(this.angle) * this.speed;
+                    this.y += Math.sin(this.angle) * this.speed + this.gravity;
+                    this.alpha -= this.decay;
+
+                    if (this.alpha <= this.decay) {
+                        particles.splice(index, 1);
+                    }
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+                    ctx.lineTo(this.x, this.y);
+                    ctx.strokeStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`;
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+            }
+
+            function createExplosion(x, y, hue) {
+                playSound('pop');
+                let count = 80;
+                while (count--) {
+                    particles.push(new Particle(x, y, hue));
+                }
+            }
+
+            class SkyLantern {
+                constructor(x) {
+                    this.x = x || Math.random() * width;
+                    this.y = height + 40;
+                    this.speedY = Math.random() * 1 + 0.8;
+                    this.sway = Math.random() * 0.02;
+                    this.swayOffset = Math.random() * Math.PI * 2;
+                    this.size = Math.random() * 12 + 18;
+                    this.alpha = 1;
+                }
+
+                update(index) {
+                    this.y -= this.speedY;
+                    this.swayOffset += this.sway;
+                    this.x += Math.sin(this.swayOffset) * 0.5;
+
+                    if (this.y < -50) {
+                        lanterns.splice(index, 1);
+                    }
+                }
+
+                draw() {
+                    ctx.save();
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = 'rgba(251, 191, 36, 0.8)';
+                    ctx.fillStyle = 'rgba(245, 158, 11, 0.85)';
+                    ctx.beginPath();
+                    if (ctx.roundRect) {
+                        ctx.roundRect(this.x - this.size / 2, this.y - this.size * 0.7, this.size, this.size * 1.3, 6);
+                    } else {
+                        ctx.rect(this.x - this.size / 2, this.y - this.size * 0.7, this.size, this.size * 1.3);
+                    }
+                    ctx.fill();
+
+                    ctx.fillStyle = 'rgba(255, 240, 180, 0.9)';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y + this.size * 0.3, this.size * 0.25, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            function createFlowerpot(x, y) {
+                playSound('fountain');
+                for (let i = 0; i < 6; i++) {
+                    const angle = -Math.PI / 2 + (Math.random() * 0.8 - 0.4);
+                    const speed = Math.random() * 9 + 4;
+                    const p = new Particle(x, y, 40);
+                    p.angle = angle;
+                    p.speed = speed;
+                    p.gravity = 0.3;
+                    p.decay = 0.025;
+                    particles.push(p);
+                }
+            }
+
+            class Diya {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.flicker = 0;
+                }
+
+                draw() {
+                    this.flicker += 0.1;
+                    const flameScale = 1 + Math.sin(this.flicker) * 0.15;
+
+                    ctx.save();
+                    // Base
+                    ctx.fillStyle = '#b45309';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 22, 0, Math.PI);
+                    ctx.fill();
+
+                    // Flame Glow
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = '#f59e0b';
+                    ctx.fillStyle = '#fef08a';
+                    ctx.beginPath();
+                    ctx.ellipse(this.x, this.y - 12, 7 * flameScale, 14 * flameScale, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            class RangoliPulse {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.radius = 5;
+                    this.maxRadius = 60 + Math.random() * 40;
+                    this.alpha = 1;
+                    this.hue = Math.random() * 360;
+                }
+
+                update(index) {
+                    this.radius += 2;
+                    this.alpha -= 0.02;
+                    if (this.alpha <= 0 || this.radius >= this.maxRadius) {
+                        rangolis.splice(index, 1);
+                    }
+                }
+
+                draw() {
+                    ctx.save();
+                    ctx.strokeStyle = `hsla(${this.hue}, 90%, 60%, ${this.alpha})`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius * 0.5, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+
+            // ANIMATION LOOP
+            function animate() {
+                requestAnimationFrame(animate);
+
+                // Camera drift in Cinematic Mode
+                if (state.autoShow) {
+                    const now = Date.now();
+                    if (now - state.lastAutoLaunch > 700) {
+                        const sx = Math.random() * (width - 100) + 50;
+                        const ty = Math.random() * (height * 0.5) + 50;
+                        fireworks.push(new Firework(sx, height, sx + (Math.random() * 100 - 50), ty));
+                        state.lastAutoLaunch = now;
+                    }
+                    state.cameraOffset.targetX = Math.sin(now * 0.001) * 30;
+                    state.cameraOffset.targetY = Math.cos(now * 0.0008) * 15;
+                }
+
+                state.cameraOffset.x += (state.cameraOffset.targetX - state.cameraOffset.x) * 0.05;
+                state.cameraOffset.y += (state.cameraOffset.targetY - state.cameraOffset.y) * 0.05;
+
+                ctx.save();
+                ctx.fillStyle = 'rgba(5, 3, 15, 0.2)';
+                ctx.fillRect(0, 0, width, height);
+
+                ctx.translate(state.cameraOffset.x, state.cameraOffset.y);
+
+                // Draw Rangolis
+                for (let i = rangolis.length - 1; i >= 0; i--) {
+                    rangolis[i].update(i);
+                    if (rangolis[i]) rangolis[i].draw();
+                }
+
+                // Draw Diyas
+                for (let i = 0; i < diyas.length; i++) {
+                    diyas[i].draw();
+                }
+
+                // Update & Draw Lanterns
+                for (let i = lanterns.length - 1; i >= 0; i--) {
+                    lanterns[i].update(i);
+                    if (lanterns[i]) lanterns[i].draw();
+                }
+
+                // Update & Draw Fireworks
+                for (let i = fireworks.length - 1; i >= 0; i--) {
+                    fireworks[i].update(i);
+                    if (fireworks[i]) fireworks[i].draw();
+                }
+
+                // Update & Draw Particles
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    particles[i].update(i);
+                    if (particles[i]) particles[i].draw();
+                }
+
+                ctx.restore();
+            }
+
+            // POINTER INTERACTIONS
+            function handlePointerAction(x, y) {
+                initAudio();
+                
+                const realX = x - state.cameraOffset.x;
+                const realY = y - state.cameraOffset.y;
+
+                if (state.mode === 'rocket') {
+                    const sx = width / 2 + (Math.random() * 160 - 80) - state.cameraOffset.x;
+                    fireworks.push(new Firework(sx, height - state.cameraOffset.y, realX, realY));
+                } else if (state.mode === 'lantern') {
+                    lanterns.push(new SkyLantern(realX));
+                } else if (state.mode === 'flowerpot') {
+                    createFlowerpot(realX, realY);
+                } else if (state.mode === 'diya') {
+                    diyas.push(new Diya(realX, realY));
+                } else if (state.mode === 'rangoli') {
+                    rangolis.push(new RangoliPulse(realX, realY));
+                }
+            }
+
+            window.addEventListener('pointerdown', (e) => {
+                if (e.target.closest('header') || e.target.closest('.pointer-events-auto') || e.target.closest('#wishModal')) {
+                    return;
+                }
+                state.mouse.isDown = true;
+                handlePointerAction(e.clientX, e.clientY);
+            });
+
+            window.addEventListener('pointermove', (e) => {
+                if (state.mouse.isDown && (state.mode === 'flowerpot' || state.mode === 'rangoli')) {
+                    if (e.target.closest('header') || e.target.closest('.pointer-events-auto') || e.target.closest('#wishModal')) return;
+                    handlePointerAction(e.clientX, e.clientY);
+                }
+            });
+
+            window.addEventListener('pointerup', () => state.mouse.isDown = false);
+
+            // MODE BUTTON CONTROLS
+            const modeButtons = {
+                rocket: document.getElementById('modeRocketBtn'),
+                lantern: document.getElementById('modeLanternBtn'),
+                flowerpot: document.getElementById('modeFlowerpotBtn'),
+                diya: document.getElementById('modeDiyaBtn'),
+                rangoli: document.getElementById('modeRangoliBtn')
+            };
+
+            Object.keys(modeButtons).forEach(key => {
+                if (!modeButtons[key]) return;
+                modeButtons[key].addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    state.mode = key;
+                    Object.values(modeButtons).forEach(btn => {
+                        if (btn) {
+                            btn.classList.remove('active');
+                            btn.classList.add('border-amber-500/30');
+                        }
+                    });
+                    modeButtons[key].classList.add('active');
+                });
+            });
+
+            // AUDIO TOGGLE & EQUALIZER
+            const audioBtn = document.getElementById('audioBtn');
+            const audioIcon = document.getElementById('audioIcon');
+            const audioText = document.getElementById('audioText');
+            const eqVisualizer = document.getElementById('eqVisualizer');
+
+            if (audioBtn) {
+                audioBtn.addEventListener('click', () => {
+                    initAudio();
+                    state.soundEnabled = !state.soundEnabled;
+                    if (state.soundEnabled) {
+                        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                        audioIcon.className = 'hidden';
+                        eqVisualizer.classList.remove('hidden');
+                        audioText.innerText = 'Sound: ON';
+                    } else {
+                        audioIcon.className = 'fa-solid fa-volume-xmark text-amber-400';
+                        eqVisualizer.classList.add('hidden');
+                        audioText.innerText = 'Sound: OFF';
+                    }
+                });
+            }
+
+            // CINEMATIC SHOW TOGGLE
+            const showModeBtn = document.getElementById('showModeBtn');
+            const showModeText = document.getElementById('showModeText');
+
+            if (showModeBtn) {
+                showModeBtn.addEventListener('click', () => {
+                    initAudio();
+                    state.autoShow = !state.autoShow;
+                    if (state.autoShow) {
+                        showModeBtn.classList.add('bg-amber-500/30', 'border-amber-400');
+                        showModeText.innerText = 'Cinematic: ON';
+                    } else {
+                        showModeBtn.classList.remove('bg-amber-500/30', 'border-amber-400');
+                        showModeText.innerText = 'Cinematic: OFF';
+                        state.cameraOffset.targetX = 0;
+                        state.cameraOffset.targetY = 0;
+                    }
+                });
+            }
+
+            // WISH CARD MODAL CONTROLS
+            const wishModal = document.getElementById('wishModal');
+            const wishModalCard = document.getElementById('wishModalCard');
+            const openWishModalBtn = document.getElementById('openWishModalBtn');
+            const closeWishModalBtn = document.getElementById('closeWishModalBtn');
+            const copyWishBtn = document.getElementById('copyWishBtn');
+            const triggerCelebrationBtn = document.getElementById('triggerCelebrationBtn');
+
+            if (openWishModalBtn && wishModal && wishModalCard) {
+                openWishModalBtn.addEventListener('click', () => {
+                    wishModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        wishModal.classList.remove('opacity-0');
+                        wishModalCard.classList.remove('scale-95');
+                        wishModalCard.classList.add('scale-100');
+                    }, 10);
+                });
+            }
+
+            function closeModal() {
+                if (!wishModal || !wishModalCard) return;
+                wishModal.classList.add('opacity-0');
+                wishModalCard.classList.remove('scale-100');
+                wishModalCard.classList.add('scale-95');
+                setTimeout(() => wishModal.classList.add('hidden'), 300);
+            }
+
+            if (closeWishModalBtn) closeWishModalBtn.addEventListener('click', closeModal);
+
+            if (triggerCelebrationBtn) {
+                triggerCelebrationBtn.addEventListener('click', () => {
+                    closeModal();
+                    initAudio();
+                    for(let i=0; i<5; i++) {
+                        setTimeout(() => {
+                            const sx = Math.random() * (width - 200) + 100;
+                            const ty = Math.random() * (height * 0.4) + 80;
+                            fireworks.push(new Firework(sx, height, sx + (Math.random() * 100 - 50), ty));
+                        }, i * 200);
+                    }
+                });
+            }
+
+            if (copyWishBtn) {
+                copyWishBtn.addEventListener('click', () => {
+                    const text = `Happy Diwali 🎇\n\nMay this festival of lights illuminate your path with health, peace, prosperity, and boundless happiness!\n\nBe safe with crackers & enjoy the grand light show!\n\n— By Praveen`;
+
+                    const temp = document.createElement('textarea');
+                    temp.value = text;
+                    document.body.appendChild(temp);
+                    temp.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(temp);
+
+                    copyWishBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Copied!';
+                    setTimeout(() => {
+                        copyWishBtn.innerHTML = '<i class="fa-solid fa-copy mr-1"></i> Copy Greeting';
+                    }, 2000);
+                });
+            }
+
+            // INITIALIZE ANIMATION AND DIYAS
+            animate();
+            diyas.push(new Diya(width * 0.2, height - 50));
+            diyas.push(new Diya(width * 0.8, height - 50));
+        });
+    </script>
+</body>
+</html>
